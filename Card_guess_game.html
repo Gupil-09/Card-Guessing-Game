@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Satisfy&display=swap" rel="stylesheet">
+    <title>Card Guessing Game</title>
+    <style>
+        body 
+        {
+            background-color: rgb(255, 149, 78);
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        h1
+        {
+            margin-top: 200px;
+            text-align: center;
+            font-size: 70px;
+            margin-bottom: 20px;
+            font-family: "Satisfy", cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: 400;
+            font-style: normal;
+        }
+        .container 
+        {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px;
+        }
+        .card 
+        {
+            width: 100px;
+            height: 100px;
+            background-color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .card:hover 
+        {
+            background-color: rgb(200, 200, 200);
+            border-radius: 50px;
+            rotate: 360deg;
+        }
+        .hidden 
+        {
+            visibility: hidden;
+        }
+        .score-board 
+        {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1>Card Guessing Game</h1>
+    <div class="container" id="game-container"></div>
+    <div class="score-board">Score: <span id="score">0</span></div>
+    <script>
+        const emojis = ['🍇', '🍉', '🍊', '🍋', '🍌', '🍎'];
+        const cards = [...emojis, ...emojis];
+        let flippedCards = [];
+        let matchedCards = [];
+        let clickDisabled = false;
+        let score = 0;
+        function updateScore(isMatch) 
+        {
+            if (isMatch) 
+            {
+                score += 1;
+            } 
+            else 
+            {
+                score -= 1;
+            }
+            document.getElementById('score').innerText = score;
+            if (score === -10) 
+            {  
+                alert('You lose!');
+                resetGame();  
+            }
+        }
+        function resetGame() 
+        {
+            score = 0;
+            flippedCards = [];
+            matchedCards = [];
+            clickDisabled = false;
+            document.getElementById('score').innerText = score;
+            const container = document.getElementById('game-container');
+            container.innerHTML = '';
+            initializeGame();
+        }
+        function createCard(emoji) 
+        {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.innerHTML = `<span class="hidden">${emoji}</span>`;
+            card.addEventListener('click', () => flipcard(card));
+            return card;
+        }
+        function shuffle(array) 
+        {
+            for (let i = array.length - 1; i > 0; i--) 
+            {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        function flipcard(card) 
+        {
+            if (clickDisabled || card === flippedCards[0]) return;
+            card.firstChild.classList.remove('hidden');
+            flippedCards.push(card);
+            if (flippedCards.length === 2) 
+            {
+                clickDisabled = true;
+                setTimeout(() => 
+                {
+                    const [card1, card2] = flippedCards;
+                    if (card1.firstChild.innerText === card2.firstChild.innerText) 
+                    {
+                        matchedCards.push(card1, card2);
+                        updateScore(true);
+                        if (matchedCards.length === cards.length) 
+                        {
+                            alert('You win!');
+                            resetGame();
+                        }
+                    } 
+                    else 
+                    {
+                        card1.firstChild.classList.add('hidden');
+                        card2.firstChild.classList.add('hidden');
+                        updateScore(false);
+                    }
+                    flippedCards = [];
+                    clickDisabled = false;
+                }, 1000);
+            }
+        }
+        function initializeGame() 
+        {
+            const container = document.getElementById('game-container');
+            shuffle(cards).forEach(emoji => 
+            {
+                const card = createCard(emoji);
+                container.appendChild(card);
+            });
+        }
+        initializeGame();
+    </script>
+</body>
+</html>
